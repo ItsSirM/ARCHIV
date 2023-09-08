@@ -144,7 +144,7 @@ private void openFile() {
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 if (line.startsWith("/* Font: ")) {
-                    fontName = line.substring(10, line.indexOf(" */"));
+                    fontName = line.substring(9, line.indexOf(" */"));
                 } else if (line.startsWith("/* Font Size: ")) {
                     fontSize = Integer.parseInt(line.substring(14, line.indexOf(" */")));
                 } else if (line.startsWith("/* Font Color: ")) {
