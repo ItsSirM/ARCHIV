@@ -132,6 +132,7 @@ private void openFile() {
     if (returnValue == JFileChooser.APPROVE_OPTION) {
         File selectedFile = fileChooser.getSelectedFile();
         try {
+            textPane.setText("");
             FileReader reader = new FileReader(selectedFile);
             BufferedReader bufferedReader = new BufferedReader(reader);
             StyledDocument doc = textPane.getStyledDocument();
