@@ -103,29 +103,73 @@ public class EDITOR_BUENO extends JFrame {
     fileMenu.add(saveMenuItem);
 }
 
-    private void openFile() {
-    int returnValue = fileChooser.showOpenDialog(this);
+    private void saveFile() {
+    int returnValue = fileChooser.showSaveDialog(this);
     if (returnValue == JFileChooser.APPROVE_OPTION) {
         File selectedFile = fileChooser.getSelectedFile();
         try {
-            FileReader reader = new FileReader(selectedFile);
-            textPane.read(reader, null);
-            reader.close();
+            FileWriter writer = new FileWriter(selectedFile);
+
+
+            writer.write("/* Font: " + textPane.getFont().getName() + " */\n");
+            writer.write("/* Font Size: " + textPane.getFont().getSize() + " */\n");
+
+
+            Color fontColor = textPane.getForeground();
+            writer.write("/* Font Color: " + fontColor.getRed() + "," + fontColor.getGreen() + "," + fontColor.getBlue() + " */\n");
+
+
+            textPane.write(writer);
+            writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 }
 
-private void saveFile() {
-    int returnValue = fileChooser.showSaveDialog(this);
+private void openFile() {
+    int returnValue = fileChooser.showOpenDialog(this);
     if (returnValue == JFileChooser.APPROVE_OPTION) {
         File selectedFile = fileChooser.getSelectedFile();
         try {
-            FileWriter writer = new FileWriter(selectedFile);
-            textPane.write(writer);
-            writer.close();
-        } catch (IOException e) {
+            FileReader reader = new FileReader(selectedFile);
+            BufferedReader bufferedReader = new BufferedReader(reader);
+            StyledDocument doc = textPane.getStyledDocument();
+
+            String fontName = null;
+            int fontSize = -1;
+            Color fontColor = null;
+
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                if (line.startsWith("/* Font: ")) {
+                    fontName = line.substring(10, line.indexOf(" */"));
+                } else if (line.startsWith("/* Font Size: ")) {
+                    fontSize = Integer.parseInt(line.substring(14, line.indexOf(" */")));
+                } else if (line.startsWith("/* Font Color: ")) {
+                    String colorString = line.substring(15, line.indexOf(" */"));
+                    String[] rgbValues = colorString.split(",");
+                    if (rgbValues.length == 3) {
+                        int red = Integer.parseInt(rgbValues[0]);
+                        int green = Integer.parseInt(rgbValues[1]);
+                        int blue = Integer.parseInt(rgbValues[2]);
+                        fontColor = new Color(red, green, blue);
+                    }
+                } else {
+                    doc.insertString(doc.getLength(), line + "\n", null);
+                }
+            }
+
+
+            if (fontName != null) {
+                textPane.setFont(new Font(fontName, Font.PLAIN, fontSize != -1 ? fontSize : 12));
+            }
+            if (fontColor != null) {
+                textPane.setForeground(fontColor);
+            }
+
+            reader.close();
+        } catch (IOException | BadLocationException e) {
             e.printStackTrace();
         }
     }
